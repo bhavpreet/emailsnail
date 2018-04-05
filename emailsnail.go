@@ -157,11 +157,9 @@ func extract_emails(master_url string, url string, done chan string, depth int, 
 }
 
 func main() {
-	//	resp, err := http.Get("http://manonthelam.com/")
 	var go_pool = make(chan bool, POOL_SIZE)
 
 	seedUrls := os.Args[1:]
-	//seedUrls := []string{"http://manonthelam.com/"}
 	done := make(chan string)
 	emails := make(chan eRet, POOL_SIZE)
 
