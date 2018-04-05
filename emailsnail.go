@@ -11,7 +11,7 @@ import (
 )
 
 // Concurrency management for number of go threads
-var POOL_SIZE = 10
+var POOL_SIZE = 20
 
 var DEPTH = 2
 var email_regex, _ = regexp.Compile(`[a-z0-9._%+\-]+(@|&#64;)[a-z0-9.\-]+(\.|&#46;)[a-z]{2,4}`)
@@ -48,7 +48,7 @@ func crawl(master_url string, url string, emails chan eRet, ch chan string, chFi
 	}()
 
 	if err != nil {
-		fmt.Println("ERROR: Failed to crawl \"" + url + "\"")
+		//fmt.Println("ERROR: Failed to crawl \"" + url + "\"")
 		return
 	}
 
@@ -177,29 +177,37 @@ func main() {
 	emailMap := make(map[string]map[string]bool)
 	for count := 0; count < len(seedUrls); {
 		select {
-		case <-done:
+		case _u := <-done:
 			count++
+			// we are done for url _u, we should spit it out
+			fmt.Printf("%s,", _u)
+			if e, ok := emailMap[_u]; ok == true {
+				for _e, _ := range e {
+					fmt.Printf("%s ", _e)
+				}
+			}
+			fmt.Println("")
 
 		case _email := <-emails:
 			if _, ok := emailMap[_email.master_url]; ok == false {
 				emailMap[_email.master_url] = make(map[string]bool)
 			}
 
-			if _, ok := emailMap[_email.master_url][_email.email]; ok == false {
-				fmt.Println(_email.master_url, ":", _email.email)
-			}
+			// if _, ok := emailMap[_email.master_url][_email.email]; ok == false {
+			// 	fmt.Println(_email.master_url, ":", _email.email)
+			// }
 			emailMap[_email.master_url][_email.email] = true
 		}
 	}
 
-	if len(emailMap) > 0 {
-		fmt.Println("Final Summary: ")
-		for key, val := range emailMap {
-			fmt.Printf("%s : ", key)
-			for _e, _ := range val {
-				fmt.Printf("%s ", _e)
-			}
-			fmt.Println("")
-		}
-	}
+	// if len(emailMap) > 0 {
+	// 	fmt.Println("Final Summary: ")
+	// 	for key, val := range emailMap {
+	// 		fmt.Printf("%s : ", key)
+	// 		for _e, _ := range val {
+	// 			fmt.Printf("%s ", _e)
+	// 		}
+	// 		fmt.Println("")
+	// 	}
+	// }
 }
