@@ -61,7 +61,7 @@ func crawl(master_url string, url string, emails chan eRet, ch chan string, chFi
 		tt := z.Next()
 
 		for _, e := range email_regex.FindAllStringSubmatch(string(z.Raw()), -1) {
-			if strings.Index(strings.ToLower(e[0]), ".jpg") == -1 && strings.Index(strings.ToLower(e[0]), ".png") == -1 {
+			if strings.Index(strings.ToLower(e[0]), ".jpg") == -1 && strings.Index(strings.ToLower(e[0]), ".png") == -1 && strings.Index(strings.ToLower(e[0]), ".jpeg") == -1 {
 				emails <- eRet{master_url, e[0]}
 			}
 		}
