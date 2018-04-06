@@ -42,6 +42,11 @@ func getHref(t html.Token) (ok bool, href string) {
 
 // Extract all http** links from a given webpage
 func crawl(master_url string, url string, emails chan eRet, ch chan string, chFinished chan bool) {
+	defer func() {
+		// Notify that we're done after this function
+		chFinished <- true
+	}()
+
 	up, err := urlp.Parse(master_url)
 	if err != nil {
 		return
@@ -49,11 +54,6 @@ func crawl(master_url string, url string, emails chan eRet, ch chan string, chFi
 	hostname := up.Hostname()
 
 	resp, err := http.Get(url)
-
-	defer func() {
-		// Notify that we're done after this function
-		chFinished <- true
-	}()
 
 	if err != nil {
 		//fmt.Println("ERROR: Failed to crawl \"" + url + "\"")
