@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	urlp "net/url"
+
 	"golang.org/x/net/html"
 )
 
@@ -40,6 +42,12 @@ func getHref(t html.Token) (ok bool, href string) {
 
 // Extract all http** links from a given webpage
 func crawl(master_url string, url string, emails chan eRet, ch chan string, chFinished chan bool) {
+	up, err := urlp.Parse(master_url)
+	if err != nil {
+		return
+	}
+	hostname := up.Hostname()
+
 	resp, err := http.Get(url)
 
 	defer func() {
@@ -90,9 +98,11 @@ func crawl(master_url string, url string, emails chan eRet, ch chan string, chFi
 			// Make sure the url begines in http**
 			hasProto := strings.Index(url, "http") == 0
 			if hasProto {
-				// ch <- url
-				if strings.Index(strings.ToLower(url), "contact") > -1 || strings.Index(strings.ToLower(url), "about") > -1 || strings.Index(strings.ToLower(url), "support") > -1 || strings.Index(strings.ToLower(url), "work") > -1 {
-					ch <- url
+				_up, err := urlp.Parse(url)
+				if err == nil && hostname == _up.Hostname() {
+					if strings.Index(strings.ToLower(url), "contact") > -1 || strings.Index(strings.ToLower(url), "about") > -1 || strings.Index(strings.ToLower(url), "support") > -1 || strings.Index(strings.ToLower(url), "work") > -1 {
+						ch <- url
+					}
 				}
 			}
 		}
